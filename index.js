@@ -32,10 +32,10 @@ function logRequestDetails(req, targetUrl) {
   console.log("Request Hostname:", req.hostname);
 }
 
-// Express endpoint to handle /api/cors1 proxy requests
-app.get("/api/cors1/*", (req, res) => {
+// Express endpoint to handle /api/cors1 and /api/* proxy requests
+app.use(["/api/cors1/*", "/api/*"], (req, res) => {
   // Extract the target URL from the request path
-  const targetUrl = req.url.replace("/api/cors1/", "");
+  const targetUrl = req.url.replace(/^\/api(?:\/cors1)?\//, "");
 
   // Log the incoming request details
   logRequestDetails(req, targetUrl);
