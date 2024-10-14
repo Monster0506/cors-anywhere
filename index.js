@@ -17,7 +17,7 @@ app.use((req, res, next) => {
 app.use("/api/*", (req, res) => {
   try {
     // Extract the target URL from the request
-    const targetUrl = req.url.replace(/^\/api\//, "");
+    const targetUrl = req.url.replace("/api/", "");
     const decodedUrl = decodeURIComponent(targetUrl);
 
     console.log("Decoded URL:", decodedUrl);
