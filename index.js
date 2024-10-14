@@ -3,8 +3,6 @@ const corsAnywhere = require("cors-anywhere");
 const { URL } = require("url");
 
 const app = express();
-// branch
-// Set up CORS Anywhere
 const host = process.env.HOST || "0.0.0.0";
 const port = process.env.PORT || 3000;
 
@@ -16,10 +14,10 @@ app.use((req, res, next) => {
 });
 
 // Proxy endpoint
-app.get("/api/*", (req, res) => {
+app.use("/api/*", (req, res) => {
   try {
     // Extract the target URL from the request
-    const targetUrl = req.url.replace("/api/", "");
+    const targetUrl = req.url.replace(/^\/api\//, "");
     const decodedUrl = decodeURIComponent(targetUrl);
 
     console.log("Decoded URL:", decodedUrl);
@@ -33,7 +31,8 @@ app.get("/api/*", (req, res) => {
       return res.status(400).json({ error: "Invalid URL" });
     }
 
-    // Create the proxy server
+    // Proxy the request using CORS Anywhere
+    req.url = parsedUrl.pathname + parsedUrl.search;
     corsAnywhere.createServer({
       originWhitelist: [], // Allow all origins
       requireHeader: ["origin", "x-requested-with"],
@@ -49,6 +48,6 @@ app.get("/api/*", (req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
+app.listen(port, host, () => {
   console.log(`CORS Anywhere proxy is running on ${host}:${port}`);
 });
