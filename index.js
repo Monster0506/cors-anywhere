@@ -34,7 +34,7 @@ function logRequestDetails(req, targetUrl) {
 }
 
 // Express endpoint to handle /api/cors1 and /api/* proxy requests
-app.use(["/api/cors1/*", "/api/*"], (req, res) => {
+app.use("/api/cors1/*", (req, res) => {
   // Extract the target URL from the request path
   const targetUrl = req.url.replace(/^\/api(?:\/cors1)?\//, "");
 
@@ -62,8 +62,10 @@ app.use(["/api/cors1/*", "/api/*"], (req, res) => {
 });
 
 // Express endpoint to handle /api/cors2 proxy requests using standalone CORS Anywhere instance
-app.use("/api/cors2", (req, res) => {
+app.use(["/api/*", "/api/cors2"], (req, res) => {
   logRequestDetails(req, req.url);
+  const targetUrl = req.url.replace(/^\/api(?:\/cors2)?\//, "");
+  req.url = "/" + decodeURIComponent(targetUrl);
   corsProxy.emit("request", req, res);
 });
 
