@@ -13,6 +13,7 @@ const corsOptions = {
   removeHeaders: ["cookie", "cookie2"],
   setHeaders: {
     "x-powered-by": "cors-anywhere-proxy",
+    "Access-Control-Allow-Origin": "*", // Ensure CORS header is set
   },
 };
 
@@ -40,6 +41,9 @@ app.use(["/api/cors1/*", "/api/*"], (req, res) => {
   // Log the incoming request details
   logRequestDetails(req, targetUrl);
 
+  // Add CORS headers to response
+  res.setHeader("Access-Control-Allow-Origin", "*");
+
   // Proxy the request using the standalone corsProxy instance
   try {
     req.url = "/" + decodeURIComponent(targetUrl);
@@ -60,6 +64,7 @@ app.use(["/api/cors1/*", "/api/*"], (req, res) => {
 // Express endpoint to handle /api/cors2 proxy requests using standalone CORS Anywhere instance
 app.use("/api/cors2", (req, res) => {
   logRequestDetails(req, req.url);
+  res.setHeader("Access-Control-Allow-Origin", "*");
   corsProxy.emit("request", req, res);
 });
 
