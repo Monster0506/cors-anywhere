@@ -6,10 +6,15 @@ const app = express();
 const host = process.env.HOST || "0.0.0.0";
 const port = process.env.PORT || 3000;
 
-// Middleware for logging incoming requests
+// Middleware for logging incoming requests (Vercel-compatible)
 app.use((req, res, next) => {
-  console.log("Received request:", req.method, req.url);
-  console.log("Headers:", req.headers);
+  if (process.env.VERCEL_ENV) {
+    console.log("[VERCEL LOG] Received request:", req.method, req.url);
+    console.log("[VERCEL LOG] Headers:", JSON.stringify(req.headers));
+  } else {
+    console.log("Received request:", req.method, req.url);
+    console.log("Headers:", req.headers);
+  }
   next();
 });
 
@@ -17,7 +22,11 @@ app.use((req, res, next) => {
 app.use("/api/*", (req, res) => {
   try {
     // Extract the target URL from the request
-    const targetUrl = req.url.replace("/api/", "");
+    const targetUrl = req.url.replace(/^\/api\//, "");
+    if (!targetUrl) {
+      console.error("No target URL provided");
+      return res.status(400).json({ error: "No target URL provided" });
+    }
     const decodedUrl = decodeURIComponent(targetUrl);
 
     console.log("Decoded URL:", decodedUrl);
