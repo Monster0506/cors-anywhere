@@ -64,7 +64,6 @@ app.use(["/api/cors1/*", "/api/*"], (req, res) => {
 // Express endpoint to handle /api/cors2 proxy requests using standalone CORS Anywhere instance
 app.use("/api/cors2", (req, res) => {
   logRequestDetails(req, req.url);
-  res.setHeader("Access-Control-Allow-Origin", "*");
   corsProxy.emit("request", req, res);
 });
 
@@ -87,28 +86,11 @@ function parseEnvList(env) {
 var checkRateLimit = rateLimit(process.env.CORSANYWHERE_RATELIMIT);
 
 // Start the standalone CORS Anywhere server behind /api/cors2
-corsAnywhere.createServer({
-  originBlacklist: originBlacklist,
-  originWhitelist: originWhitelist,
-  requireHeader: ["origin", "x-requested-with"],
-  checkRateLimit: checkRateLimit,
-  removeHeaders: [
-    "cookie",
-    "cookie2",
-    // Strip Heroku-specific headers
-    "x-request-start",
-    "x-request-id",
-    "via",
-    "connect-time",
-    "total-route-time",
-    // Other Heroku added debug headers
-    // 'x-forwarded-for',
-    // 'x-forwarded-proto',
-    // 'x-forwarded-port',
-  ],
-  redirectSameOrigin: true,
-  httpProxyOptions: {
-    // Do not add X-Forwarded-For, etc. headers, because Heroku already adds it.
-    xfwd: false,
-  },
+corsProxy.on("request", (req, res) => {
+  corsProxy.emit("request", req, res);
+});
+
+corsProxy.on("error", (err, req, res) => {
+  res.writeHead(404, { "Access-Control-Allow-Origin": "*" });
+  res.end("Not found because of proxy error: " + err);
 });
