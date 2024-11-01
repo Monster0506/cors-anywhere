@@ -37,6 +37,7 @@ async function handleProxyRequest(targetUrl, req, res) {
       maxRedirects: 10, // Customize the max number of redirects if necessary
       validateStatus: (status) => status < 400, // Accept redirect statuses as valid
     });
+    console.log(response);
 
     // Send the response data back to the client
     res.status(response.status).set(response.headers).send(response.data);
