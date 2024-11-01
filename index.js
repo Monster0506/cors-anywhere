@@ -120,11 +120,16 @@ app.get("/api/*", async (req, res) => {
 
   // Clean and validate the target URL
   let targetUrl = req.url.replace("/api/", "");
+
+  // Remove `https://` if present to avoid Vercel’s HTTPS enforcement issues
+  if (/^https:\/\//i.test(targetUrl)) {
+    targetUrl = targetUrl.replace(/^https:\/\//, "");
+  }
   if (!/^https?:\/\//i.test(targetUrl)) {
     targetUrl = "http://" + targetUrl;
   }
 
-  console.log("Validated Target URL:", targetUrl);
+  console.log("Final Target URL (with protocol):", targetUrl);
 
   // Handle the proxy request with redirect support
   await handleProxyRequest(targetUrl, req, res);
